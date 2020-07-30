@@ -25,8 +25,13 @@
 |--------------------------------------------------------------------------
 */
 
-add_filter( 'init', 'register_post_types' );
 
+add_filter( 'init', 'register_dds_banner_post_types' );
+
+//function my_remove_wp_seo_meta_box() {
+//	remove_meta_box( 'wpseo_meta', 'post_type_name', 'normal' );
+//}
+//add_action( 'add_meta_boxes', 'my_remove_wp_seo_meta_box', 100 );
 
 /*
 |--------------------------------------------------------------------------
@@ -40,7 +45,7 @@ add_filter( 'init', 'register_post_types' );
  * @since       1.0
  */
 
-function register_post_types() {
+function register_dds_banner_post_types() {
 	register_post_type( 'dds-banner', array(
 		'label'              => null,
 		'labels'             => array(
@@ -64,7 +69,7 @@ function register_post_types() {
 		'show_ui'            => true,
 		// зависит от public
 		// 'show_in_nav_menus'   => null, // зависит от public
-		'show_in_menu'       => false,
+		'show_in_menu'       => true,
 		// показывать ли в меню адмнки
 		// 'show_in_admin_bar'   => null, // зависит от show_in_menu
 		'show_in_rest'       => null,
@@ -78,11 +83,84 @@ function register_post_types() {
 		'map_meta_cap'       => true,
 		// Ставим true чтобы включить дефолтный обработчик специальных прав
 		'hierarchical'       => false,
-		'supports'           => [ 'title','excerpt', 'thumbnail' ],
+		'supports'           => [ 'title', 'excerpt', 'thumbnail' ],
 		// 'title','editor','author','thumbnail','excerpt','trackbacks','custom-fields','comments','revisions','page-attributes','post-formats'
 		'taxonomies'         => array(),
 		'has_archive'        => false,
 		'rewrite'            => true,
 		'query_var'          => true,
 	) );
+}
+
+function dds__banner() {
+	global $id;
+	?>
+    <div id="Wp_Bootstrap_Carousel" class="row carousel slide" data-ride="carousel">
+		<?php
+		$count__publish = wp_count_posts( 'dds-banner' )->publish;
+
+
+        if($count__publish > 1 ) {
+            ?>
+            <ol class="carousel-indicators">
+		        <?php
+		        $args  = array(
+			        'post_type' => 'dds-banner',
+		        );
+		        $query = new WP_Query( $args );
+		        ?>
+		        <?php if ( $query->have_posts() ) : ?>
+			        <?php $i = 0; ?>
+			        <?php while ( $query->have_posts() ) : $query->the_post() ?>
+                        <li data-target="#Wp_Bootstrap_Carousel" data-slide-to="<?php echo $i ?>"
+                            class="<?php if ( $i === 0 ): ?>active<?php endif; ?>"></li>
+				        <?php $i ++; ?>
+			        <?php endwhile ?>
+		        <?php endif ?>
+		        <?php wp_reset_postdata(); ?>
+            </ol>
+
+            <!-- Controls -->
+            <a class="carousel-control-prev" href="#Wp_Bootstrap_Carousel" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next" href="#Wp_Bootstrap_Carousel" role="button" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+            </a>
+            <?php
+        }?>
+
+
+
+        <div class="carousel-inner" role="listbox">
+			<?php
+			$args  = array(
+				'post_type' => 'dds-banner',
+			);
+			$query = new WP_Query( $args );
+			?>
+			<?php if ( $query->have_posts() ) : ?>
+				<?php $i = 0; ?>
+				<?php while ( $query->have_posts() ) : $query->the_post() ?>
+                    <div class="carousel-item <?php if ( $i === 0 ): ?>active<?php endif; ?>">
+                        <img class="img-fluid"
+                             style="width: 100vw; height: auto;"
+                             src="<?php echo get_the_post_thumbnail_url( $id, 'full' ); ?>"
+                             srcset="<?php echo get_the_post_thumbnail_url( $id, 'full' ); ?> 1920w,
+	                        				<?php echo get_the_post_thumbnail_url( $id, 'shop_catalog' ); ?> 768w"
+                             sizes="(max-width: 800px) 768w, (min-width: 801px) 1920px"
+                             alt="Ресторан-клуб Танцы">
+                    </div>
+					<?php $i ++; ?>
+				<?php endwhile ?>
+			<?php endif ?>
+			<?php wp_reset_postdata(); ?>
+        </div>
+
+
+    </div>
+	<?php
+
 }
