@@ -1,1 +1,1 @@
-Wordpress plugin for tancy-club.by
+Wordpress + bootstrap carousel for tancy-club.by
